@@ -367,17 +367,18 @@ Screen *Screen::get_instance() {
     return m_instance;
 }
 
-Screen::Screen(SDL_Window* window, int surface_w, int surface_h)
+Screen::Screen(SDL_Window *window, int surface_w, int surface_h)
     : m_window(window),
-      m_surface(Surface::make_surface(
-              SDL_CreateRGBSurface(0, surface_w, surface_h, 32, 0xff0000, 0xff00, 0xff, 0xff000000),
-              NO_ALPHA)),
-      m_sdlsurface(m_surface->get_surface()), updateAll(false) {
+      update_all_p(false) {
+        m_surface.reset(Surface::make_surface(
+            SDL_CreateRGBSurface(0, surface_w, surface_h, 32, 0xff0000, 0xff00, 0xff, 0xff000000),
+            NO_ALPHA));
+        m_sdlsurface = m_surface->get_surface();
     assert(m_window);
     assert(m_surface);
     assert(m_instance == nullptr);
     m_instance = this;
-    m_scaler = new Scaler(m_surface->get_surface(), nullptr, SDL_GetWindowSurface(m_window));
+    m_scaler = std::make_unique<Scaler>(m_surface->get_surface(), nullptr, SDL_GetWindowSurface(m_window));
 }
 
 Screen::~Screen() {
@@ -750,7 +751,7 @@ std::unique_ptr<Surface> MakeSurface(void *data, int w, int h, int bipp, int pit
 }
 
 void BlitScaled(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* dst, SDL_Rect* dstrect, ScalerMode mode) {
-    Scaler scaler(src, srcrect, dst, mode);
+    Scaler scaler{src, srcrect, dst, mode};
     scaler.blit_scaled(src, srcrect, dst, dstrect);
 }
 

@@ -276,7 +276,7 @@ private:
     Screen(const Screen &);
     Screen &operator=(const Screen &);
 
-    Scaler *m_scaler;
+    std::unique_ptr<Scaler> m_scaler;
 };
 
 /* -------------------- Graphics primitives -------------------- */

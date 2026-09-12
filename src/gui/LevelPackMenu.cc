@@ -183,13 +183,17 @@ namespace enigma { namespace gui {
         }
         if (but_tutorial2 != nullptr) {
             remove_child(but_tutorial2);
-            delete but_tutorial1;
+            delete but_tutorial2;
             but_tutorial2 = nullptr;
         }
 
-        for (auto it = tutorialLines.begin(); it != tutorialLines.end(); it++)
-            if (*it != nullptr)
+        for (auto it = tutorialLines.begin(); it != tutorialLines.end(); it++) {
+            if (*it != nullptr) {
+
                 remove_child(*it);
+                delete *it;
+            }
+        }
         tutorialLines.clear();
 
         packButtons.clear();

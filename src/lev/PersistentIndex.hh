@@ -46,6 +46,7 @@ struct Variation {
 class PersistentIndex : public Index {
 public:
     static void registerPersistentIndices(bool onlySystemIndices);
+    static void registerIndex(std::unique_ptr<PersistentIndex> index);
     static PersistentIndex* historyIndex;
     static void addCurrentToHistory();
     static void shutdown();
@@ -124,6 +125,7 @@ protected:
 
 private:
     static std::vector<std::shared_ptr<PersistentIndex>> indexCandidates;
+    static std::vector<std::unique_ptr<PersistentIndex>> persistentIndices;
     std::string absIndexPath;
     xercesc::DOMDocument* doc = nullptr;
     xercesc::DOMElement* infoElem;

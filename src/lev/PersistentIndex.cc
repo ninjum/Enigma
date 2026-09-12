@@ -69,6 +69,7 @@ bool Variation::operator==(const Variation& otherVar) const {
 
 PersistentIndex* PersistentIndex::historyIndex = nullptr;
 std::vector<std::shared_ptr<PersistentIndex>> PersistentIndex::indexCandidates;
+std::vector<std::unique_ptr<PersistentIndex>> PersistentIndex::persistentIndices;
 
 void PersistentIndex::checkCandidate(const std::string& thePackPath, bool systemOnly,
         bool userOwned, bool isAuto, bool isSystemCross, bool isUserCross, double defaultLocation,
@@ -146,6 +147,11 @@ void PersistentIndex::checkCandidate(const std::string& thePackPath, bool system
     }
 }
 
+void PersistentIndex::registerIndex(std::unique_ptr<PersistentIndex> index) {
+    Index::registerIndex(index.get());
+    persistentIndices.push_back(std::move(index));
+}
+
 void PersistentIndex::registerPersistentIndices(bool onlySystemIndices) {
     DirEntry dirEntry;
 
@@ -202,20 +208,18 @@ void PersistentIndex::registerPersistentIndices(bool onlySystemIndices) {
 
     // register index-free auto folder
     // this needs to be done prior history registration to avoid outdated proxies
-    PersistentIndex* autoIndex = new PersistentIndex("auto", false, true, true,
+    std::unique_ptr<PersistentIndex> autoIndex = std::make_unique<PersistentIndex>("auto", false, true, true,
             INDEX_AUTO_PACK_LOCATION, INDEX_AUTO_PACK_NAME, INDEX_STD_FILENAME,
             INDEX_AUTO_PACK_DESCRIPTION);
     autoIndex->isEditable = false;
-    registerIndex(autoIndex);
+    PersistentIndex::registerIndex(std::move(autoIndex));
 
     // register team auto not yet registered new files
-    PersistentIndex* teamautoIndex = new PersistentIndex(
+    std::unique_ptr<PersistentIndex> teamautoIndex = std::make_unique<PersistentIndex>(
             "team_test_new_api", false, true, true, 75000, "test_new_api");
     if (teamautoIndex->size() > 0) {
         teamautoIndex->isEditable = false;
-        registerIndex(teamautoIndex);
-    } else {
-        delete teamautoIndex;
+        PersistentIndex::registerIndex(std::move(teamautoIndex));
     }
 
     // UserPath: register directories and ZIP files with XML-indices, but
@@ -548,6 +552,7 @@ PersistentIndex::~PersistentIndex() {
 // Must be called before XMLPlatformUtils::terminate
 void PersistentIndex::shutdown() {
     indexCandidates.clear();
+    persistentIndices.clear();
 }
 
 std::string PersistentIndex::getPackPath() {
@@ -1148,7 +1153,7 @@ void AddLevelPack(const char* init_file, const char* indexName) {
                 std::string indexString;
                 is >> indexString;
                 std::stringstream indexStream(indexString);
-                Index::registerIndex(new PersistentIndex(indexStream, dir, false, indexName));
+                PersistentIndex::registerIndex(std::make_unique<PersistentIndex>(indexStream, dir, false, indexName));
             } catch (const XLevelPackInit& e) {
                 Log << e.get_string() << "\n";
             }
@@ -1172,7 +1177,6 @@ void AddZippedLevelPack(const char* zipfile) {
             std::string dummy;
             if (!app.resourceFS->findFile(indexfile, dummy, inflatedContent))
                 throw XLevelPackInit("No index in level pack: ");
-
             std::string line;
             std::string indexName;
             if (getline(inflatedContent, line)) {
@@ -1184,7 +1188,8 @@ void AddZippedLevelPack(const char* zipfile) {
                 indexName = line;
 
                 // check if already loaded
-                Index::registerIndex(new PersistentIndex(inflatedContent, dir, true, indexName));
+                PersistentIndex::registerIndex(std::make_unique<PersistentIndex>(
+                        inflatedContent, dir, true, indexName));
             } else {
                 throw XLevelPackInit("Invalid level pack: " + indexName);
             }
