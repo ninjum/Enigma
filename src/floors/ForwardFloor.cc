@@ -52,7 +52,7 @@ namespace enigma {
             }
         } else if (key == "orientation") {
             if (val >= minState() && val <= maxState())
-                setState(val);
+                setState(static_cast<int>(val.getDouble()));
         } else if (key == "interval") {
             Floor::setAttr(key, val);
             update_alarm();
@@ -98,7 +98,7 @@ namespace enigma {
     }
 
     void ForwardFloor::update_alarm() {
-        double i = (double)getAttr("interval");
+        double i = getAttr("interval").getDouble();
         GameTimer.remove_alarm(this, ALARM_PREPARE);
         if (i == 0.0)
             return;  // interval 0 means: off.

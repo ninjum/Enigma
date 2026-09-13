@@ -31,27 +31,28 @@ namespace enigma {
         CLONEOBJ(ForwardFloor);
     public:
         ForwardFloor(Direction dir, std::string flavor);
-        ~ForwardFloor();
+        ~ForwardFloor() override;
 
         // Object interface
-        virtual std::string getClass() const;
-        virtual void setAttr(const std::string& key, const Value &val);
-        virtual Value getAttr(const std::string &key) const;
-        virtual Value message(const Message &m);
-
-        // StateObject interface
-        virtual int maxState() const;
-
-        // GridObject interface
-        virtual void init_model();
-        virtual void on_creation(GridPos p);
+        std::string getClass() const override;
+        void setAttr(const std::string& key, const Value &val) override;
+        Value getAttr(const std::string &key) const override;
+        Value message(const Message &m) override;
 
         // ModelCallback interface
-        virtual void animcb();
+        void animcb() override;
 
         // TimeHandler interface
         virtual void update_alarm();
-        virtual void distinguished_alarm(int alarmnr);
+        void distinguished_alarm(int alarmnr) override;
+
+    protected:
+        // StateObject interface
+        int maxState() const override;
+
+        // GridObject interface
+        void init_model() override;
+        void on_creation(GridPos p) override;
 
     private:
         const int ALARM_PREPARE = 0;

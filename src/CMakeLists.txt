@@ -17,6 +17,7 @@ add_executable(enigma
     floors/FloodStream.cc
     floors/FloodStream.hh
     floors/ForwardFloor.hh
+    floors/ForwardFloor.cc
     floors/ScalesFloor.cc
     floors/ScalesFloor.hh
     floors/SimpleFloors.cc
