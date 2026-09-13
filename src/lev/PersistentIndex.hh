@@ -46,7 +46,7 @@ struct Variation {
 class PersistentIndex : public Index {
 public:
     static void registerPersistentIndices(bool onlySystemIndices);
-    static void registerIndex(std::unique_ptr<PersistentIndex> index);
+    static void registerPersistentIndex(std::unique_ptr<PersistentIndex> index);
     static PersistentIndex* historyIndex;
     static void addCurrentToHistory();
     static void shutdown();

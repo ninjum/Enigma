@@ -369,11 +369,11 @@ Screen *Screen::get_instance() {
 
 Screen::Screen(SDL_Window *window, int surface_w, int surface_h)
     : m_window(window),
-      update_all_p(false) {
-        m_surface.reset(Surface::make_surface(
+      updateAll(false) {
+    m_surface = Surface::make_surface(
             SDL_CreateRGBSurface(0, surface_w, surface_h, 32, 0xff0000, 0xff00, 0xff, 0xff000000),
-            NO_ALPHA));
-        m_sdlsurface = m_surface->get_surface();
+            NO_ALPHA);
+    m_sdlsurface = m_surface->get_surface();
     assert(m_window);
     assert(m_surface);
     assert(m_instance == nullptr);

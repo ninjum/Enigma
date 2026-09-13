@@ -147,7 +147,7 @@ void PersistentIndex::checkCandidate(const std::string& thePackPath, bool system
     }
 }
 
-void PersistentIndex::registerIndex(std::unique_ptr<PersistentIndex> index) {
+void PersistentIndex::registerPersistentIndex(std::unique_ptr<PersistentIndex> index) {
     Index::registerIndex(index.get());
     persistentIndices.push_back(std::move(index));
 }
@@ -212,14 +212,14 @@ void PersistentIndex::registerPersistentIndices(bool onlySystemIndices) {
             INDEX_AUTO_PACK_LOCATION, INDEX_AUTO_PACK_NAME, INDEX_STD_FILENAME,
             INDEX_AUTO_PACK_DESCRIPTION);
     autoIndex->isEditable = false;
-    PersistentIndex::registerIndex(std::move(autoIndex));
+    registerPersistentIndex(std::move(autoIndex));
 
     // register team auto not yet registered new files
     std::unique_ptr<PersistentIndex> teamautoIndex = std::make_unique<PersistentIndex>(
             "team_test_new_api", false, true, true, 75000, "test_new_api");
     if (teamautoIndex->size() > 0) {
         teamautoIndex->isEditable = false;
-        PersistentIndex::registerIndex(std::move(teamautoIndex));
+        registerPersistentIndex(std::move(teamautoIndex));
     }
 
     // UserPath: register directories and ZIP files with XML-indices, but
@@ -1153,7 +1153,7 @@ void AddLevelPack(const char* init_file, const char* indexName) {
                 std::string indexString;
                 is >> indexString;
                 std::stringstream indexStream(indexString);
-                PersistentIndex::registerIndex(std::make_unique<PersistentIndex>(indexStream, dir, false, indexName));
+                PersistentIndex::registerPersistentIndex(std::make_unique<PersistentIndex>(indexStream, dir, false, indexName));
             } catch (const XLevelPackInit& e) {
                 Log << e.get_string() << "\n";
             }
@@ -1188,7 +1188,7 @@ void AddZippedLevelPack(const char* zipfile) {
                 indexName = line;
 
                 // check if already loaded
-                PersistentIndex::registerIndex(std::make_unique<PersistentIndex>(
+                PersistentIndex::registerPersistentIndex(std::make_unique<PersistentIndex>(
                         inflatedContent, dir, true, indexName));
             } else {
                 throw XLevelPackInit("Invalid level pack: " + indexName);
